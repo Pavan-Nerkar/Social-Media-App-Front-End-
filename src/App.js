@@ -1,24 +1,40 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Route, Router, Routes } from "react-router-dom";
+import "./App.css";
+import Authentication from "./pages/Authentication/Authentication";
+import HomePage from "./pages/HomePage/HomePage";
+import Message from "./pages/Message/MessagePage";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { getProfileAction } from "./Redux/Auth/auth.action";
+import Reels from "./Components/Reels/Reels";
+import { ThemeProvider } from "@mui/material";
+import { darTheme } from "./theam/DarkTheme";
+
 
 function App() {
+  const {auth} = useSelector(store=>store);
+  const dispatch=useDispatch();
+  const jwt = localStorage.getItem("jwt"); 
+
+
+  useEffect(() => {
+  if (jwt) {
+    dispatch(getProfileAction(jwt));
+  }
+}, [jwt]); // ✅ dependency array prevents infinite loop
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+     <BrowserRouter>
+      <ThemeProvider theme={darTheme} className="App">
+        <Routes>
+         
+          <Route path="/home/*" element={auth.user?<HomePage/>:<Authentication />} />
+          <Route path="/home/message" element={<Message />} />
+          {/* <Route path="/reels" element={<Reels />} /> */}
+           <Route path="/*" element={<Authentication />} />
+        </Routes>
+      </ThemeProvider>
+    </BrowserRouter>
   );
 }
 
